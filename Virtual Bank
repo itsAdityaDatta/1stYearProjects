@@ -1,0 +1,373 @@
+#include <stdio.h>
+#include <ctype.h>
+#include <time.h>
+#include <string.h>
+#include <stdlib.h>
+
+FILE *fpointer;
+void delay(float);
+void addcash(char str1[50],int amt);
+void subcash(char str1[50],int amt);
+void ctransfer(char str1[50],char str2[50],int amt);
+
+struct account
+{
+    char name[50];
+    char password[50];
+    int cash;
+
+} account;
+
+char iusername[50];
+char ipassword[50];
+
+void main()
+{
+
+    printf("\n\n\t\t\t\t\t\t- VIRTUAL BANK SYSTEM -\n\n");
+    printf("\n\t\t 1) CREATE A NEW ACCOUNT");
+    printf("\n\t\t 2) LOGIN TO AN EXISTING ACCOUNT");
+    printf("\n\t\t 3) EXIT\n\n\n\n");
+
+
+    int inp;
+    printf("\t\t INPUT: ");
+    scanf("%d",&inp);
+    delay(0.4);
+    switch(inp)
+    {
+        case 1:
+        {
+            system("cls");
+            printf("\n\n\t\t\t\t\t\t- CREATE A NEW ACCOUNT -\n\n");
+            printf("\n\t\t ENTER YOUR USERNAME: ");
+            scanf("%s",&iusername);
+
+
+            char str1[55];
+            for(int i=0;i<strlen(iusername);i++)
+            {
+                str1[i] = iusername[i];
+            }
+            str1[strlen(iusername)] = '\0';
+            strcat(str1,".txt");
+            fpointer = (fopen(str1, "r"));
+
+            if(fpointer == NULL)
+            {
+                fpointer = (fopen(str1, "w"));
+                fflush(stdin);
+                printf("\t\t ENTER YOUR PASSWORD: ");
+                gets(account.password);
+                printf("\t\t ENTER YOUR FULL NAME: ");
+                gets(account.name);
+
+                account.cash = 0;
+                fwrite(&account, sizeof(account), 1, fpointer);
+                fclose(fpointer);
+                printf("\n\n\t\t CONGRATULATIONS! YOUR ACCOUNT : %s HAS BEEN CREATED WITH 0 CASH IN YOUR ACCOUNT\n\t\t YOU WILL NOW BE DIRECTED TO THE HOME PAGE WHERE YOU CAN LOGIN TO THIS ACCOUNT",iusername);
+                delay(6.5);
+                system("cls");
+                return main();
+            }
+            else
+            {
+                printf("\n\n\t\t ERROR: AN ACCOUNT WITH THAT USERNAME ALREADY EXISTS");
+                printf("\n\t\t PLEASE TRY ANOTHER USERNAME OR LOGIN USING THIS USERNAME\n");
+                delay(5.5);
+                system("cls");
+                return main();
+            }
+            fclose(fpointer);
+            break;
+        }
+
+        case 2:
+        {
+            system("cls");
+            printf("\n\n\t\t\t\t\t\t- LOGIN TO AN EXISTING ACCOUNT-\n\n");
+            printf("\n\t\t ENTER YOUR USERNAME: ");
+            scanf("%s",&iusername);
+            char str1[50];
+            for(int i=0;i<strlen(iusername);i++)
+            {
+                str1[i] = iusername[i];
+            }
+            str1[strlen(iusername)] = '\0';
+            strcat(str1,".txt");
+            fpointer = (fopen(str1, "r"));
+            if(fpointer == NULL)
+            {
+                printf("\n\n\t\t ERROR: AN ACCOUNT BY THE NAME OF %s DOES NOT EXIST\n\t\t PLEASE TRY AGAIN ",iusername);
+                delay(5.5);
+                system("cls");
+                fclose(fpointer);
+                return main();
+            }
+            else
+            {
+                    fread(&account, sizeof(account), 1, fpointer);
+                    printf("\t\t ENTER YOUR PASSWORD: ");
+                    scanf("%s",&ipassword);
+                    if(strcmp(ipassword,account.password) == 0)
+                    {
+                        label:
+                        {
+                            fclose(fpointer);
+                            char str1[50];
+                            for(int i=0;i<strlen(iusername);i++)
+                            {
+                                str1[i] = iusername[i];
+                            }
+                            str1[strlen(iusername)] = '\0';
+                            strcat(str1,".txt");
+                            fpointer = (fopen(str1, "r"));
+                            fread(&account, sizeof(account), 1, fpointer);
+                            delay(0.4);
+                            system("cls");
+                            printf("\n\n\t\t\t\t\t\t- WELCOME %s -\n\n",account.name);
+                            printf("\n\t\t YOUR CURRENT CASH BALANCE IS %d\n",account.cash);
+                            printf("\n\t\t 1) CASH DEPOSIT");
+                            printf("\n\t\t 2) CASH WITHDRAW");
+                            printf("\n\t\t 3) CASH TRANSFER");
+                            printf("\n\t\t 4) CHANGE PASSWORD");
+                            printf("\n\t\t 5) CHANGE NAME");
+                            printf("\n\t\t 6) LOGOUT");
+                            printf("\n\t\t 7) EXIT");
+
+                            printf("\n\n\n\t\t INPUT: ");
+                            int input;
+                            scanf("%d",&input);
+                            delay(0.4);
+                            switch(input)
+                            {
+                                case 1:
+                                {
+                                    system("cls");
+                                    int cdeposit;
+                                    printf("\n\n\t\t\t\t\t\t- CASH DEPOSIT -\n\n");
+                                    printf("\n\t\t ENTER THE AMOUNT OF CASH TO BE DEPOSITED: ");
+                                    scanf("%d",&cdeposit);
+                                    addcash(str1,cdeposit);
+                                    printf("\n\n\t\t DEPOSIT SUCCESSFUL\n\t\t CURRENT BALANCE: %d \n",account.cash);
+                                    delay(4);
+                                    goto label;
+                                    break;
+                                }
+
+
+                                case 2:
+                                {
+                                    system("cls");
+                                    int cwithdraw;
+                                    printf("\n\n\t\t\t\t\t\t- CASH WITHDRAW -\n\n");
+                                    printf("\n\t\t ENTER THE AMOUNT OF CASH TO BE WITHDRAWED: ");
+                                    scanf("%d",&cwithdraw);
+                                    if(account.cash>=cwithdraw)
+                                    {
+                                        subcash(str1,cwithdraw);
+                                        printf("\n\n\t\t WITHDRAWAL SUCCESSFUL\n\t\t CURRENT BALANCE: %d \n",account.cash);
+                                    }
+                                    else
+                                    {
+                                        printf("\n\n\t\t ERROR: INSUFFICIENT FUNDS\n\t\t CURRENT BALANCE: %d \n",account.cash);
+                                    }
+                                    delay(4);
+                                    goto label;
+                                    break;
+                                }
+
+                                case 3:
+                                {
+                                    system("cls");
+                                    printf("\n\n\t\t\t\t\t\t- CASH TRANSFER -\n\n");
+                                    printf("\n\t\t ENTER THE NAME OF THE ACCOUNT YOU WANT THE MONEY TO BE TRANSFERRED TO: ");
+                                    char str2[50];
+                                    char accname[50];
+                                    scanf("%s",&accname);
+                                    for(int i=0;i<strlen(accname);i++)
+                                    {
+                                        str2[i] = accname[i];
+                                    }
+                                    str2[strlen(accname)] = '\0';
+                                    strcat(str2,".txt");
+                                    fclose(fpointer);
+                                    fpointer = (fopen(str2, "r"));
+                                    if(fpointer == NULL)
+                                    {
+                                        printf("\n\n\t\t ERROR: AN ACCOUNT BY THE NAME OF %s DOES NOT EXIST\n\t\t PLEASE TRY AGAIN ",accname);
+
+                                    fclose(fpointer);
+                                    delay(4.5);
+                                        system("cls");
+                                        fclose(fpointer);
+                                        goto label;
+                                    }
+
+                                    else
+                                    {
+                                        int amt;
+                                        printf("\t\t ENTER THE AMOUNT OF CASH YOU WANT TO TRANSFER: ");
+                                        scanf("%d",&amt);
+                                        fclose(fpointer);
+                                        fpointer = (fopen(str1, "r"));
+                                        fread(&account, sizeof(account), 1, fpointer);
+                                        if(account.cash>=amt)
+                                        {
+                                            fclose(fpointer);
+                                            ctransfer(str1,str2,amt);
+                                            fpointer = (fopen(str1, "r"));
+                                            fread(&account, sizeof(account), 1, fpointer);
+                                            printf("\n\n\t\t CASH TRANSFERRED SUCCESSFULLY\n\t\t CURRENT BALANCE: %d \n",account.cash);
+                                            fclose(fpointer);
+
+                                        }
+
+                                        else
+                                        {
+                                            printf("\n\n\t\t ERROR: INSUFFICIENT BALANCE\n\t\t CURRENT BALANCE: %d ",account.cash);
+                                            delay(4.5);
+                                            system("cls");
+                                            fclose(fpointer);
+                                            goto label;
+                                        }
+
+                                        delay(4.5);
+                                        goto label;
+
+                                    }
+                                break;
+                                }
+
+                                case 4:
+                                {
+                                    fpointer = (fopen(str1, "w"));
+                                    system("cls");
+                                    printf("\n\n\t\t\t\t\t\t- CHANGE PASSWORD -\n\n");
+                                    printf("\n\t\t ENTER YOUR NEW PASSWORD: ");
+                                    char npass[50];
+                                    scanf("%s",&npass);
+                                    strcpy(account.password,npass);
+                                    fwrite(&account, sizeof(account), 1, fpointer);
+                                    printf("\n\n\t\t PASSWORD CHANGED SUCCESSFULLY\n\t\t NEW PASSWORD: %s \n",account.password);
+                                    delay(4);
+                                    fclose(fpointer);
+                                    goto label;
+                                    break;
+                                }
+
+                                case 5:
+                                {
+                                    fpointer = (fopen(str1, "w"));
+                                    system("cls");
+                                    printf("\n\n\t\t\t\t\t\t- CHANGE NAME -\n\n");
+                                    printf("\n\t\t ENTER YOUR NEW NAME: ");
+                                    char nname[50];
+                                    scanf("%s",&nname);
+                                    strcpy(account.name,nname);
+                                    fwrite(&account, sizeof(account), 1, fpointer);
+                                    printf("\n\n\t\t NAME CHANGED SUCCESSFULLY\n\t\t NEW NAME: %s \n",account.name);
+                                    delay(4);
+                                    fclose(fpointer);
+                                    goto label;
+                                    break;
+                                }
+
+                                case 6:
+                                {
+                                    delay(0.4);
+                                    system("cls");
+                                    fclose(fpointer);
+                                    return main();
+                                    break;
+                                }
+
+                                case 7:
+                                {
+                                    delay(0.4);
+                                    return;
+                                    break;
+                                }
+
+                                default:
+                                {
+                                    goto label;
+                                    break;
+                                }
+
+                            }
+                        }
+                    }
+
+
+                else
+                {
+                    printf("\n\n\t\t ERROR: INVALID PASSWORD");
+                    printf("\n\t\t PLEASE TRY ANOTHER PASSWORD\n");
+                    delay(6);
+                    system("cls");
+                    return main();
+                }
+
+            }
+            fclose(fpointer);
+            break;
+        }
+
+
+        case 3:
+        {
+            return;
+            break;
+        }
+
+        default:
+        {
+            system("cls");
+            return main();
+        }
+
+    }
+
+}
+
+void addcash(char str1[50],int amt)
+{
+    fpointer = (fopen(str1, "w+"));
+    fread(&account, sizeof(account), 1, fpointer);
+    account.cash += amt;
+    fwrite(&account, sizeof(account), 1, fpointer);
+    fclose(fpointer);
+}
+
+void subcash(char str1[50],int amt)
+{
+    fpointer = (fopen(str1, "w+"));
+    fread(&account, sizeof(account), 1, fpointer);
+    account.cash -= amt;
+    fwrite(&account, sizeof(account), 1, fpointer);
+    fclose(fpointer);
+
+}
+
+void ctransfer(char str1[50],char str2[50],int amt)
+{
+    fclose(fpointer);
+    subcash(str1,amt);
+    fclose(fpointer);
+
+    fpointer = (fopen(str2, "r+"));
+    fread(&account, sizeof(account), 1, fpointer);
+    account.cash += amt;
+    fpointer = (fopen(str2, "w"));
+    fwrite(&account, sizeof(account), 1, fpointer);
+    fclose(fpointer);
+    fclose(fpointer);
+}
+
+void delay(float number_of_seconds)
+{
+    float milli_seconds = 1000 * number_of_seconds;
+    clock_t start_time = clock();
+    while (clock() < start_time + milli_seconds);
+}
