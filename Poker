@@ -1,0 +1,237 @@
+#include <stdio.h>
+#include <ctype.h>
+#include <time.h>
+#include <string.h>
+#include <stdlib.h>
+
+void delay(float);
+void newgame();
+void game();
+int numplayers;
+int totalcash;
+int pot;
+int kiskiturntostart;
+int kiskiturn;
+void endcurrentgame(int);
+int igcount =0;
+
+struct players
+{
+    char name[50];
+    int money;
+    int ig;
+
+}p[8];
+
+void main()
+{
+    printf("\n\n\t\t\t\t\t\t\t- POKER -\n\n");
+    printf("\n\t\t ENTER THE NUMBER OF PLAYERS: ");
+    scanf("%d",&numplayers);
+
+    delay(1);
+    system("cls");
+
+    for(int i=0;i<numplayers;i++)
+    {
+        printf("\n\n\t\t\t\t\t\t\t- POKER -\n\n");
+        printf("\n\t\t PLAYER %d NAME: ",i+1);
+        scanf("%s",&p[i].name);
+        delay(.5);
+        system("cls");
+    }
+
+    printf("\n\n\t\t\t\t\t\t\t- POKER -\n\n");
+    printf("\n\t\t ENTER THE TOTAL AMOUNT OF CASH EACH PLAYER OWNS INITIALLY: ");
+    scanf("%d",&totalcash);
+
+    for(int i=0;i<numplayers;i++)
+    {
+        p[i].money = totalcash;
+        p[i].ig = 1;
+    }
+    delay(1);
+
+    newgame();
+    kiskiturntostart =0;
+}
+
+
+
+void newgame()
+{
+    int bet;
+    system("cls");
+    printf("\n\n\t\t\t\t\t\t\t- POKER -\n\n");
+    for(int i=0;i<numplayers;i++)
+    {
+
+        p[i].ig = 1;
+        printf("\t\t %s\t\t",p[i].name);
+        printf(" %d",p[i].money);
+        printf("\n");
+    }
+
+    printf("\n\n\t\t POT: %d\n",pot);
+    printf("\t\t CHANCE: %s\n\n\n",p[kiskiturntostart%numplayers].name);
+
+    printf("\t\t BET: ");
+    scanf("%d",&bet);
+    pot+= bet;
+    delay(1);
+    p[kiskiturntostart%numplayers].money -= bet;
+    kiskiturntostart++;
+    kiskiturn = kiskiturntostart%numplayers;
+    game();
+
+}
+
+void game()
+{
+    if(p[kiskiturn%numplayers].ig == 0)
+    {
+        kiskiturn++;
+        game();
+    }
+    int selection;
+    int bet;
+    system("cls");
+    printf("\n\n\t\t\t\t\t\t\t- POKER -\n\n");
+    for(int i=0;i<numplayers;i++)
+    {
+        printf("\t\t %s\t\t",p[i].name);
+        printf(" %d",p[i].money);
+        if(p[i].ig ==0)
+            printf("\t...X");
+        printf("\n");
+    }
+
+    printf("\n\n\t\t POT: %d\n",pot);
+    printf("\t\t CHANCE: %s\n\n\n",p[kiskiturn%numplayers].name);
+
+    printf("\t\t 1) BET\n\t\t 2) FOLD\n");
+    for(int i=3;i<numplayers+3;i++)
+    {
+        printf("\t\t %d) %s WON\n",i,p[i-3].name);
+    }
+    printf("\n\t\t ENTER: ");
+    scanf("%d",&selection);
+    switch(selection)
+    {
+        case 1:
+        {
+            system("cls");
+            printf("\n\n\t\t\t\t\t\t\t- POKER -\n\n");
+            for(int i=0;i<numplayers;i++)
+            {
+                printf("\t\t %s\t\t",p[i].name);
+                printf(" %d",p[i].money);
+                if(p[i].ig ==0)
+                    printf("\t...X");
+                printf("\n");
+            }
+
+            printf("\n\n\t\t POT: %d\n",pot);
+            printf("\t\t CHANCE: %s\n\n\n",p[kiskiturn%numplayers].name);
+
+            printf("\t\t 1) BET\n\t\t 2) FOLD\n");
+            for(int i=3;i<numplayers+3;i++)
+            {
+                printf("\t\t %d) %s WON\n",i,p[i-3].name);
+            }
+            printf("\n\t\t BET: ");
+            scanf("%d",&bet);
+
+            p[kiskiturn%numplayers].money -= bet;
+            pot+= bet;
+            break;
+        }
+
+        case 2:
+        {
+            p[kiskiturn%numplayers].ig = 0;
+            igcount =0;
+            for(int i=0;i<numplayers;i++)
+            {
+                if(p[i].ig == 0)
+                    igcount++;
+            }
+
+
+            if(igcount == (numplayers-1))
+            {
+                int pwon;
+                for(int i=0;i<numplayers;i++)
+                {
+                    if(p[i].ig == 1)
+                    {
+                        pwon = i;
+                    }
+                }
+                endcurrentgame(pwon);
+            }
+            break;
+        }
+
+        case 3:
+        {
+            endcurrentgame(0);
+            break;
+        }
+
+        case 4:
+        {
+            endcurrentgame(1);
+            break;
+        }
+        case 5:
+        {
+            endcurrentgame(2);
+            break;
+        }
+        case 6:
+        {
+            endcurrentgame(3);
+            break;
+        }
+        case 7:
+        {
+            endcurrentgame(4);
+            break;
+        }
+        case 8:
+        {
+            endcurrentgame(5);
+            break;
+        }
+        case 9:
+        {
+            endcurrentgame(6);
+            break;
+        }
+
+
+        default:
+        {
+            game();
+        }
+    }
+
+    kiskiturn++;
+    game();
+}
+
+void endcurrentgame(int pwon)
+{
+    p[pwon].money += pot;
+    pot = 0;
+    newgame();
+
+}
+
+void delay(float number_of_seconds)
+{
+    float milli_seconds = 1000 * number_of_seconds;
+    clock_t start_time = clock();
+    while (clock() < start_time + milli_seconds);
+}
